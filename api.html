@@ -3,35 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ArcGIS API for JavaScript Sample</title>
-<link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/css/main.css">
-<style>
-       html, body, #viewDiv {
-           height: 100%;
-           margin: 0;
-           padding: 0;
-       }
-</style>
-</head>
-<body>
-<div id="viewDiv"></div>
-<script src="https://js.arcgis.com/4.23/"></script>
+<title>Logger</title>
 <script>
-       require([
-           "esri/Map",
-           "esri/views/MapView"
-       ], function(Map, MapView) {
-           // Create a map and a view
-           const map = new Map({
-               basemap: "streets-navigation-vector" // Choose a basemap
-           });
-           const view = new MapView({
-               container: "viewDiv", // Reference to the DOM node to render the view
-               map: map, // Reference to the map object created before the view
-               center: [-100.33, 43.69], // Longitude, latitude
-               zoom: 4 // Zoom level
-           });
+       document.addEventListener("DOMContentLoaded", () => {
+           const username = "user123"; // Replace with actual user identifier
+           const appName = "My ArcGIS Dashboard"; // Replace with actual app name
+           fetch('http://your-server-url/logAccess', {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json'
+               },
+               body: JSON.stringify({ username, appName })
+           })
+           .then(response => {
+               if (response.ok) {
+                   console.log('Log entry created');
+               }
+           })
+           .catch(error => console.error('Logging failed:', error));
        });
 </script>
+</head>
+<body>
+<h1>Welcome to the ArcGIS Dashboard</h1>
 </body>
 </html>
