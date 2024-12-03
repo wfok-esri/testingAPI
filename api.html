@@ -11,7 +11,7 @@
            identityManager.checkSignInStatus("https://esrichinahk.maps.arcgis.com/home/index.html").then(function (user) {
                if (user) {
                    const username = user.userId; // Capture the username
-                   const appName = "My ArcGIS Dashboard"; // Replace with actual app name
+                   const appName = "Testing API"; // Replace with actual app name
                    const timestamp = new Date().toISOString();
                    // Send log entry to the logging server
                    fetch('http://127.0.0.1:5000/logAccess', {
