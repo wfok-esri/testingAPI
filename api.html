@@ -4,29 +4,52 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Logger</title>
+<link rel="stylesheet" href="https://js.arcgis.com/4.26/esri/css/main.css">
+<script src="https://js.arcgis.com/4.26/"></script>
 <script>
-       document.addEventListener("DOMContentLoaded", () => {
-           const username = "user123"; // Replace with actual user identifier
-           const appName = "My ArcGIS Dashboard"; // Replace with actual app name
-           fetch('http://127.0.0.1:5000/logAccess', {
-               method: 'POST',
-               headers: {
-                   'Content-Type': 'application/json'
-               },
-               body: JSON.stringify({ username, appName })
-           })
-           .then(response => {
-               if (response.ok) {
-                   console.log('Log entry created');
+       require(["esri/identity/IdentityManager", "esri/Map", "esri/views/MapView"], function (identityManager, Map, MapView) {
+           // Initialize the map (optional, for visualization)
+           const map = new Map({ basemap: "streets-navigation-vector" });
+           const view = new MapView({
+               container: "viewDiv",
+               map: map,
+               center: [-118.805, 34.027], // Longitude, latitude
+               zoom: 13
+           });
+           // Check if the user is logged in
+           identityManager.checkSignInStatus("https://your-portal-url/portal").then(function (user) {
+               if (user) {
+                   const username = user.userId; // Capture the username
+                   const appName = "My ArcGIS Dashboard"; // Replace with actual app name
+                   const timestamp = new Date().toISOString();
+                   // Send log entry to the logging server
+                   fetch('http://127.0.0.1:5000/logAccess', {
+                       method: 'POST',
+                       headers: {
+                           'Content-Type': 'application/json'
+                       },
+                       body: JSON.stringify({ username, appName, timestamp })
+                   })
+                   .then(response => {
+                       if (response.ok) {
+                           console.log('Log entry created');
+                       }
+                   })
+                   .catch(error => console.error('Logging failed:', error));
+                   // Display user information in the heading
+                   document.getElementById('user-info').innerText = `User ${username} accessed ${appName}`;
+               } else {
+                   console.log("User not logged in.");
                }
-           })
-           .catch(error => console.error('Logging failed:', error));
+           }).catch(error => {
+               console.error("Error checking sign-in status:", error);
+           });
        });
-       console.log('username:', username);
 </script>
 </head>
 <body>
 <h1>Welcome to the ArcGIS Dashboard</h1>
-       <h2>User {{username}} access to {{My ArcGIS Dashboard}}</h2>
+<h2 id="user-info"></h2>
+<div id="viewDiv" style="height: 400px;"></div> <!-- Optional: Map Display -->
 </body>
 </html>
