@@ -8,7 +8,7 @@
 <script>
        require(["esri/identity/IdentityManager"], function (identityManager) {
            // Check if the user is logged in
-           identityManager.checkSignInStatus("https://esrichinahk.maps.arcgis.com/apps/dashboards/08626fdf54b846a9b579a34c007e463d").then(function (user) {
+           identityManager.checkSignInStatus("https://esrichinahk.maps.arcgis.com/home/index.html").then(function (user) {
                if (user) {
                    const username = user.userId; // Capture the username
                    const appName = "My ArcGIS Dashboard"; // Replace with actual app name
