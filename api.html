@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logger</title>
+<script src="https://js.arcgis.com/4.26/"></script>
+<script>
+       require(["esri/request"], function (esriRequest) {
+           // Ensure the global variables are available
+           const username = window.username; // Access global username
+           const accessToken = window.accessToken; // Access global access token
+           // Check if username and access token are available
+           if (!username || !accessToken) {
+               console.error('Username or access token is not available.');
+               document.getElementById('user-info').innerText = "Failed to retrieve user information.";
+               return;
+           }
+           // Function to log access
+           function logAccess() {
+               const appName = "Testing API"; // Replace with actual app name
+               const timestamp = new Date().toISOString();
+               fetch('http://127.0.0.1:5000/logAccess', {
+                   method: 'POST',
+                   headers: {
+                       'Content-Type': 'application/json'
+                   },
+                   body: JSON.stringify({ username, appName, timestamp })
+               })
+               .then(response => {
+                   if (response.ok) {
+                       console.log('Log entry created');
+                   } else {
+                       console.error('Failed to log entry:', response.statusText);
+                   }
+               })
+               .catch(error => console.error('Logging failed:', error));
+           }
+           // Call logAccess when the page loads
+           logAccess();
+       });
+</script>
+</head>
+<body>
+<h1>Welcome to the ArcGIS Dashboard</h1>
+<h2 id="user-info">User: ${window.username}</h2>
+</body>
+</html>
