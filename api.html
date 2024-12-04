@@ -6,55 +6,67 @@
 <title>Logger</title>
 <script src="https://js.arcgis.com/4.26/"></script>
 <script>
-       require(["esri/identity/IdentityManager"], function (IdentityManager) {
-           // Check sign-in status when the page loads
-           IdentityManager.checkSignInStatus("https://esrichinahk.maps.arcgis.com").then(function () {
-               // User is signed in, fetch user information
-               fetchUserInfo();
-           }).catch(function () {
-               // Handle case where user is not signed in
-               console.error("User is not signed in.");
-               document.getElementById('user-info').innerText = "User not logged in.";
-           });
-       });
-       function fetchUserInfo() {
-           // Get the token using IdentityManager
-           const token = IdentityManager.getCredential("https://esrichinahk.maps.arcgis.com").token;
-           // Fetch user information with the dynamic token
-           fetch(`https://esrichinahk.maps.arcgis.com/sharing/rest/portals/self?f=json&culture=en-us&token=${token}`)
-               .then(response => response.json())
-               .then(data => {
-                   const username = data.user.username; // Capture the username from the response
+       require(["esri/identity/IdentityManager", "esri/request"], function (IdentityManager, esriRequest) {
+           // Function to check sign-in status and fetch user info
+           function checkSignIn() {
+               IdentityManager.checkSignInStatus("https://esrichinahk.maps.arcgis.com")
+                   .then(function () {
+                       // User is signed in, fetch user info
+                       const token = IdentityManager.getCredential("https://esrichinahk.maps.arcgis.com").token;
+                       fetchUserInfo(token);
+                   })
+                   .catch(function () {
+                       // User is not signed in, initiate sign-in
+                       signIn();
+                   });
+           }
+           // Function to initiate sign-in
+           function signIn() {
+               IdentityManager.getCredential("https://esrichinahk.maps.arcgis.com").then(function (credential) {
+                   fetchUserInfo(credential.token);
+               }).catch(function (error) {
+                   console.error("Sign-in failed:", error);
+               });
+           }
+           // Function to fetch user information
+           function fetchUserInfo(token) {
+               esriRequest(`https://esrichinahk.maps.arcgis.com/sharing/rest/portals/self?f=json&culture=en-us&token=${token}`, {
+                   responseType: "json"
+               }).then(function (response) {
+                   const data = response.data;
+                   const username = data.user.username; // Capture the username
                    const appName = "Testing API"; // Replace with actual app name
                    const timestamp = new Date().toISOString();
-                   // Send log entry to the logging server
+                   // Log access
                    logAccess(username, appName, timestamp);
                    // Display user information
                    document.getElementById('user-info').innerText = `User ${username} accessed ${appName} at ${timestamp}`;
-               })
-               .catch(error => {
+               }).catch(function (error) {
                    console.error('Error fetching user data:', error);
                    document.getElementById('user-info').innerText = "Failed to retrieve user information.";
                });
-       }
-       function logAccess(username, appName, timestamp) {
-           // Send log entry to the logging server
-           fetch('http://127.0.0.1:5000/logAccess', {
-               method: 'POST',
-               headers: {
-                   'Content-Type': 'application/json'
-               },
-               body: JSON.stringify({ username, appName, timestamp })
-           })
-           .then(response => {
-               if (response.ok) {
-                   console.log('Log entry created');
-               } else {
-                   console.error('Failed to log entry:', response.statusText);
-               }
-           })
-           .catch(error => console.error('Logging failed:', error));
-       }
+           }
+           // Function to log access
+           function logAccess(username, appName, timestamp) {
+               fetch('http://127.0.0.1:5000/logAccess', {
+                   method: 'POST',
+                   headers: {
+                       'Content-Type': 'application/json'
+                   },
+                   body: JSON.stringify({ username, appName, timestamp })
+               })
+               .then(response => {
+                   if (response.ok) {
+                       console.log('Log entry created');
+                   } else {
+                       console.error('Failed to log entry:', response.statusText);
+                   }
+               })
+               .catch(error => console.error('Logging failed:', error));
+           }
+           // Check sign-in status on page load
+           checkSignIn();
+       });
 </script>
 </head>
 <body>
