@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logger</title>
+<script src="https://js.arcgis.com/4.26/"></script>
+<script>
+       require(["esri/request"], function (esriRequest) {
+           // Function to refresh the access token
+           function refreshAccessToken() {
+               const url = 'https://esrichinahk.maps.arcgis.com/sharing/rest/oauth2/token';
+               const params = new URLSearchParams();
+               params.append('client_id', 'dashboards');  // Your client ID
+               params.append('grant_type', 'refresh_token');
+               params.append('refresh_token', 'TO1KgMSHxqVt18MoTu96CCmBie8xlg83Zcn6sOevfzkACZJgkTvrPWs-CY8Yv5yi5-BfZ-62Z2FQm-9Rrc9ZEJ0wpvOKPdfBIn-EVidfimULuhsT49eeCEF-pnNrGI6LRGYZVW7AF2m0V-N34AdFlyCmZ4nCFY9ALBoKv7M6KRT4bJm8gBHgQi3o8zijky-c5Q_1Ww-4jBObKzwCPdNZR17QpX8Plgfwf-W_EoVN0nop82IcpNnYkxLhYsfX4CBQhUetxeB55IjqBXMKMVKvhFxrKtYWu2bVZMqw1NbBIP4RWlRVHP75NYBkvSv7FsnfFmfGGOGhbQJz1RHEqrwoZkXRDD-X2KluTmR_AzAmM4a5hpONY6rlbGpQ_XQZp3b0tuQ5xm3StwgeihyR-ubz8ORuehTTHdgvXmAwQ1_Qtr3Sx4YMjBHAcYsumEeD3iND');
+               esriRequest(url, {
+                   method: 'POST',
+                   body: params,
+                   headers: {
+                       'Content-Type': 'application/x-www-form-urlencoded'
+                   },
+                   responseType: 'json'
+               }).then(function (response) {
+                   const data = response.data;
+                   if (data.access_token) {
+                       console.log('New Access Token:', data.access_token);
+                       // Optionally store the new refresh token if provided
+                       if (data.refresh_token) {
+                           refreshToken = data.refresh_token; // Update the refresh token
+                       }
+                       // Now you can fetch user info or perform other actions with the new access token
+                       fetchUserInfo(data.access_token);
+                   } else {
+                       console.error('Error retrieving access token:', data);
+                   }
+               }).catch(function (error) {
+                   console.error('Error refreshing token:', error);
+               });
+           }
+           // Function to fetch user information using the access token
+           function fetchUserInfo(token) {
+               const apiUrl = `https://esrichinahk.maps.arcgis.com/sharing/rest/portals/self?f=json&token=${token}`;
+               esriRequest(apiUrl, {
+                   responseType: 'json'
+               }).then(function (response) {
+                   const data = response.data;
+                   const username = data.user.username; // Capture the username
+                   const appName = "Testing API"; // Replace with actual app name
+                   const timestamp = new Date().toISOString();
+                   // Log access
+                   logAccess(username, appName, timestamp);
+                   // Display user information
+                   document.getElementById('user-info').innerText = `User ${username} accessed ${appName} at ${timestamp}`;
+               }).catch(function (error) {
+                   console.error('Error fetching user data:', error);
+                   document.getElementById('user-info').innerText = "Failed to retrieve user information.";
+               });
+           }
+           // Function to log access
+           function logAccess(username, appName, timestamp) {
+               fetch('http://127.0.0.1:5000/logAccess', {
+                   method: 'POST',
+                   headers: {
+                       'Content-Type': 'application/json'
+                   },
+                   body: JSON.stringify({ username, appName, timestamp })
+               })
+               .then(response => {
+                   if (response.ok) {
+                       console.log('Log entry created');
+                   } else {
+                       console.error('Failed to log entry:', response.statusText);
+                   }
+               })
+               .catch(error => console.error('Logging failed:', error));
+           }
+           // Start the process to refresh the access token and fetch user info
+           refreshAccessToken();
+       });
+</script>
+</head>
+<body>
+<h1>Welcome to the ArcGIS Dashboard</h1>
+<h2 id="user-info"></h2>
+</body>
+</html>
