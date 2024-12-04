@@ -7,26 +7,17 @@
 <script src="https://js.arcgis.com/4.26/"></script>
 <script>
        require(["esri/identity/IdentityManager", "esri/request"], function (IdentityManager, esriRequest) {
-           // Function to check sign-in status and fetch user info
-           function checkSignIn() {
-               IdentityManager.checkSignInStatus("https://esrichinahk.maps.arcgis.com")
-                   .then(function () {
-                       // User is signed in, fetch user info
-                       const token = IdentityManager.getCredential("https://esrichinahk.maps.arcgis.com").token;
-                       fetchUserInfo(token);
+           // Function to initiate a sign-in process
+           function getToken() {
+               IdentityManager.getCredential("https://esrichinahk.maps.arcgis.com")
+                   .then(function (credential) {
+                       // Fetch user info with the dynamic token
+                       fetchUserInfo(credential.token);
                    })
-                   .catch(function () {
-                       // User is not signed in, initiate sign-in
-                       signIn();
+                   .catch(function (error) {
+                       console.error("Failed to get credential:", error);
+                       document.getElementById('user-info').innerText = "Failed to retrieve access token.";
                    });
-           }
-           // Function to initiate sign-in
-           function signIn() {
-               IdentityManager.getCredential("https://esrichinahk.maps.arcgis.com").then(function (credential) {
-                   fetchUserInfo(credential.token);
-               }).catch(function (error) {
-                   console.error("Sign-in failed:", error);
-               });
            }
            // Function to fetch user information
            function fetchUserInfo(token) {
@@ -64,8 +55,8 @@
                })
                .catch(error => console.error('Logging failed:', error));
            }
-           // Check sign-in status on page load
-           checkSignIn();
+           // Start the process to get the token and fetch user info
+           getToken();
        });
 </script>
 </head>
