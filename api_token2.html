@@ -15,7 +15,7 @@
                }).then(function (response) {
                    const data = response.data;
                    const username = data.user.username; // Capture the username
-                   const appName = "Testing API"; // Replace with actual app name
+                   const appName = data.appInfo.appTitle; // Replace with actual app name
                    const timestamp = new Date().toISOString();
                    // Log access
                    logAccess(username, appName, timestamp);
