@@ -46,6 +46,7 @@
            }
            // Check for existing credentials
            const credential = IdentityManager.findCredential("https://esrichinahk.maps.arcgis.com");
+           console.log('credential:', credential)
            if (credential) {
                // If credentials exist, fetch user info directly
                fetchUserInfo(credential.token);
