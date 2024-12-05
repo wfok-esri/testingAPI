@@ -45,15 +45,16 @@
                .catch(error => console.error('Logging failed:', error));
            }
            // Check for existing credentials
-           const credential = IdentityManager.findCredential("https://esrichinahk.maps.arcgis.com");
+           const credential = IdentityManager.findCredential("https://esrichinahk.maps.arcgis.com/apps/dashboards/08626fdf54b846a9b579a34c007e463d");
            console.log('credential:', credential)
            if (credential) {
                // If credentials exist, fetch user info directly
                fetchUserInfo(credential.token);
            } else {
                // If no credentials, initiate sign-in process
-               IdentityManager.getCredential("https://esrichinahk.maps.arcgis.com")
+               IdentityManager.getCredential("https://esrichinahk.maps.arcgis.com/apps/dashboards/08626fdf54b846a9b579a34c007e463d")
                    .then(function (credential) {
+                       console.log('credential:', credential)
                        fetchUserInfo(credential.token);
                    })
                    .catch(function (error) {
