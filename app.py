@@ -4,7 +4,7 @@ import datetime
 import os
 app = Flask(__name__)
 # Define the base log directory
-LOG_DIR = r"C:\Arcgis_API\user_activity_logs"
+LOG_DIR = r"E:\GOPMS\logs\useraccess"
 # Ensure the log directory exists
 if not os.path.exists(LOG_DIR):
    os.makedirs(LOG_DIR)
@@ -15,7 +15,7 @@ def log_access():
    app_name = data.get('appName')
    timestamp = datetime.datetime.now()
    # Create a log filename based on the current month
-   log_filename = f"dashboard_logs_{timestamp.year}_{timestamp.strftime('%b')}.log"
+   log_filename = f"useraccess_{timestamp.year}_{timestamp.strftime('%b')}.log"
    log_path = os.path.join(LOG_DIR, log_filename)
    log_entry = f"{timestamp.isoformat()} - User: {username}, App: {app_name}\n"
    # Append log entry to the monthly log file
